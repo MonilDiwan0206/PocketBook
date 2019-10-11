@@ -116,19 +116,40 @@ public class LoginActivity extends AppCompatActivity {
                                 String personEmail = acct.getEmail();
                                 mRef.child("Users").child(uid).child("Email").setValue(personEmail);
                             }
-                            DatabaseReference myRef = mRef.child("Users").child(uid);
+                            final DatabaseReference myRef = mRef.child("Users").child(uid);
                             myRef.addValueEventListener(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                                     if (dataSnapshot.hasChild("Family")) {
-                                        Intent mainIntent = new Intent(LoginActivity.this, MainActivity.class);
-                                        startActivity(mainIntent);
-                                        finish();
+                                        if (dataSnapshot.hasChild("total_expense")){
+                                            Intent mainIntent = new Intent(LoginActivity.this, MainActivity.class);
+                                            startActivity(mainIntent);
+                                            finish();
+
+                                        }
+                                        else {
+                                            int i = 0;
+                                            myRef.child("total_expense").setValue(i);
+                                            Intent mainIntent = new Intent(LoginActivity.this, MainActivity.class);
+                                            startActivity(mainIntent);
+                                            finish();
+                                        }
 
                                     } else {
-                                        Intent familyIntent = new Intent(LoginActivity.this, FamilyActivity.class);
-                                        startActivity(familyIntent);
-                                        finish();
+                                        if (dataSnapshot.hasChild("total_expense")){
+                                            Intent familyIntent = new Intent(LoginActivity.this, FamilyActivity.class);
+                                            startActivity(familyIntent);
+                                            finish();
+
+                                        }
+                                        else {
+                                            int i = 0;
+                                            myRef.child("total_expense").setValue(i);
+                                            Intent familyIntent = new Intent(LoginActivity.this, FamilyActivity.class);
+                                            startActivity(familyIntent);
+                                            finish();
+                                        }
+
                                     }
                                 }
 

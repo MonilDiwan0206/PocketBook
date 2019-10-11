@@ -9,9 +9,11 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -80,17 +82,19 @@ public class FamilyActivity extends AppCompatActivity {
                 if(TextUtils.isEmpty(famCode)){
                     Toast.makeText(FamilyActivity.this, "Please enter a family code.", Toast.LENGTH_SHORT).show();
                 } else {
-                    mRef.child("Family").addValueEventListener(new ValueEventListener() {
+                    mRef.child("Family").addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                             if (dataSnapshot.hasChild(famCode)) {
                                 Toast.makeText(FamilyActivity.this, "Family Code Already Taken", Toast.LENGTH_LONG).show();
                             } else {
                                 mRef.child("Family").child(famCode).child(uid).setValue("True");
+                                mRef.child("Family").child(famCode).child("total_expense").setValue(0);
                                 mRef.child("Users").child(uid).child("Family").setValue(famCode);
                                 Intent mainIntent = new Intent(FamilyActivity.this, MainActivity.class);
                                 startActivity(mainIntent);
                                 finish();
+
                             }
 
                         }
@@ -103,6 +107,8 @@ public class FamilyActivity extends AppCompatActivity {
                 }
             }
         });
+
+
 
 
     }

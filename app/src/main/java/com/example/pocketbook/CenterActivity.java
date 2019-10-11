@@ -3,6 +3,7 @@ package com.example.pocketbook;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -34,6 +35,7 @@ public class CenterActivity extends AppCompatActivity {
     private DatabaseReference mRef;
     private FirebaseAuth mAuth;
     private DatabaseReference familyRefrence;
+    private ProgressDialog mProgress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,8 +44,6 @@ public class CenterActivity extends AppCompatActivity {
 
         textView = findViewById(R.id.reason);
         textView1 = findViewById(R.id.amount);
-        textView2 = findViewById(R.id.date);
-        textView3 = findViewById(R.id.note);
         button = findViewById(R.id.submit_frorm_add);
         mRef = FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
@@ -55,17 +55,22 @@ public class CenterActivity extends AppCompatActivity {
 
         Bundle bundle = getIntent().getExtras();
         final String message = bundle.getString("position");
-        textView.setText(message);
+        mProgress = new ProgressDialog(this);
 
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                mProgress.setMessage("Updating your details");
+                mProgress.show();
                 final int amt = Integer.parseInt(textView1.getText().toString());
                 final String purpose = textView.getText().toString();
                 mRef.child("Users").child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         final String family = dataSnapshot.child("Family").getValue().toString();
+                        long te = (long) dataSnapshot.child("total_expense").getValue();
+                        te = te + amt;
+                        mRef.child("Users").child(uid).child("total_expense").setValue(te);
                         mRef.child("Users").child(uid).child(message).child(date).child(purpose).setValue(amt);
                         familyRefrence.child(family).addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
@@ -73,6 +78,11 @@ public class CenterActivity extends AppCompatActivity {
                                 long total_expense = (long) dataSnapshot.child("total_expense").getValue();
                                 total_expense = total_expense + amt;
                                 familyRefrence.child(family).child("total_expense").setValue(total_expense);
+                                mProgress.dismiss();
+                                Intent mainIntent = new Intent(CenterActivity.this, MainActivity.class);
+                                startActivity(mainIntent);
+                                finish();
+
                             }
 
                             @Override

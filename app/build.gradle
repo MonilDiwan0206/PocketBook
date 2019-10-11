@@ -43,4 +43,7 @@ dependencies {
     implementation 'com.google.android.material:material:1.0.0'
     implementation 'de.hdodenhof:circleimageview:3.0.1'
     implementation 'com.squareup.picasso:picasso:2.71828'
+    implementation 'ai.api:libai:1.6.12'
+    implementation 'ai.api:sdk:2.0.7@aar'
+    implementation 'com.jjoe64:graphview:4.2.2'
 }
