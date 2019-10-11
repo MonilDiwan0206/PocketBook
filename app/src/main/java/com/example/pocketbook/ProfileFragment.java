@@ -115,13 +115,10 @@ public class ProfileFragment extends Fragment {
 
     private void prepareSettingsData() {
 
-        Settings settings = new Settings("View your usage");
+        Settings settings = new Settings("View your Spending");
         settingsList.add(settings);
 
-        settings = new Settings("View your family members");
-        settingsList.add(settings);
-
-        settings = new Settings("View Monthly Spendings");
+        settings = new Settings("View your family spending");
         settingsList.add(settings);
 
         settings = new Settings("Log out");

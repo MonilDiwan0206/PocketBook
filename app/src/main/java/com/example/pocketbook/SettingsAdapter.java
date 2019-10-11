@@ -13,6 +13,11 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.List;
 
@@ -21,6 +26,7 @@ public class SettingsAdapter extends RecyclerView.Adapter<SettingsAdapter.MyView
     private List<Settings> settingsList;
     private Context context;
     private FirebaseAuth mAuth;
+    private DatabaseReference mRef;
 
     public class MyViewHolder extends RecyclerView.ViewHolder{
         public TextView headings;
@@ -54,18 +60,54 @@ public class SettingsAdapter extends RecyclerView.Adapter<SettingsAdapter.MyView
 
         final Settings settings = settingsList.get(i);
         myViewHolder.headings.setText(settings.getHeading());
+        mRef = FirebaseDatabase.getInstance().getReference();
+        mAuth = FirebaseAuth.getInstance();
+        final String uid = mAuth.getCurrentUser().getUid();
 
         myViewHolder.linearLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 //                Toast.makeText(context, "You Clicked"+settings.getHeading(), Toast.LENGTH_SHORT).show();
                 String action = settings.getHeading();
-                if(action == "View your usage"){
+                if(action == "View your Spending"){
+                    mRef.child("Users").child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            long totalExpense = (long) dataSnapshot.child("total_expense").getValue();
+                            Toast.makeText(context, ""+totalExpense, Toast.LENGTH_LONG).show();
+                        }
 
-                } else if(action == "View your family members"){
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
 
-                } else if(action == "View Monthly Spendings"){
-                    Toast.makeText(context, "Monthly Spendings", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+
+                } else if(action == "View your family spending"){
+                    mRef.child("Users").child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            String family = dataSnapshot.child("Family").getValue().toString();
+                            mRef.child("Family").child(family).addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                    long amt = (long) dataSnapshot.child("total_expense").getValue();
+                                    Toast.makeText(context, ""+amt, Toast.LENGTH_LONG).show();
+                                }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                }
+                            });
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                        }
+                    });
+
                 } else if(action == "Log out"){
                     mAuth.signOut();
                     Intent mainIntent = new Intent(context, LoginActivity.class);
